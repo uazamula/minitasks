@@ -72,7 +72,8 @@ class _CreateGoalState extends State<CreateGoal> {
                             final description = controllerDescription.text;
 
                             setState(() {
-                              if (goal.contains(RegExp('[a-zA-Z]'))) {
+                              //TODO other languages - pl, fr,gr
+                              if (goal.contains(RegExp('[a-zA-Zа-яА-ЯєЄ]'))) {/**/
                                 isValidGoal = true;
                                 newGoal = [goal, description];
                                 prefs.setStringList('goals', newGoal);
