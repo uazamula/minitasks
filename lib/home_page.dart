@@ -52,29 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: listOfGoals?.length == 0
             ? Text("No Goals")
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: listOfGoals!.map((aGoal) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => ShowMyGoal(
-                              goal: aGoal.goal,
-                              goalDescription: aGoal.goalDescription,
-                            ),
-                          ));
-                        },
-                        child: Text(aGoal.goal),
-                      ),
-                      SizedBox(height: 10),
-                    ],
-                  );
-                }).toList(),
-              ),
+            : buildGoals(context),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createGoal,
@@ -82,5 +60,31 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Column buildGoals(BuildContext context) {
+    return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: listOfGoals!.map((aGoal) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => ShowMyGoal(
+                            goal: aGoal.goal,
+                            goalDescription: aGoal.goalDescription,
+                          ),
+                        ));
+                      },
+                      child: Text(aGoal.goal),
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                );
+              }).toList(),
+            );
   }
 }
