@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+  static const int numOfField = 2;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -33,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
     listOfGoalsString ??= [];
     setState(() {
       //TODO replace with json
-      for (int i = 0; i < listOfGoalsString!.length; i = i + 2) {
+      for (int i = 0; i < listOfGoalsString!.length; i = i + MyHomePage.numOfField) {
         listOfGoals!.add(Goal(
           goal: listOfGoalsString![i],
           goalDescription: listOfGoalsString![i + 1],
@@ -50,9 +51,8 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Create my goals and tasks'),
       ),
       body: Center(
-        child: listOfGoals?.length == 0
-            ? Text("No Goals")
-            : buildGoals(context),
+        child:
+            listOfGoals?.length == 0 ? Text("No Goals") : buildGoals(context),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createGoal,
@@ -64,27 +64,25 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Column buildGoals(BuildContext context) {
     return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: listOfGoals!.map((aGoal) {
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ShowMyGoal(
-                            goal: aGoal.goal,
-                            goalDescription: aGoal.goalDescription,
-                          ),
-                        ));
-                      },
-                      child: Text(aGoal.goal),
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                );
-              }).toList(),
-            );
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        for (int i = 0; i < listOfGoals!.length; i++)
+          Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => ShowMyGoal(
+                    goal: listOfGoals![i],
+                    index: i,
+                  ),
+                ));
+              },
+              child: Text(listOfGoals![i].goal),
+            ),
+            SizedBox(height: 10),
+          ]),
+      ],
+    );
   }
 }
