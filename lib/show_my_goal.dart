@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class ShowMyGoal extends StatefulWidget {
-  const ShowMyGoal({Key? key, required this.goal}) : super(key: key);
+  const ShowMyGoal({Key? key, required this.goal, required this.goalDescription}) : super(key: key);
 
-  final List<String> goal;
+  final String goal;
+  final String goalDescription;
 
   @override
   State<ShowMyGoal> createState() => _ShowMyGoalState();
@@ -17,8 +18,8 @@ class _ShowMyGoalState extends State<ShowMyGoal> {
       body: Center(
         child: Column(
           children: [
-            Text('goal: ${widget.goal[0]}'),
-            Text('description: ${widget.goal[1]}')
+            Text('goal: ${widget.goal}'),
+            Text('description: ${widget.goalDescription}')
 
           ],
         ),
