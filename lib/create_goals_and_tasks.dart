@@ -20,7 +20,7 @@ class CreateGoalsAndTasks extends StatelessWidget {
 
               ElevatedButton(onPressed: (){
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CreateGoal(),
+                  builder: (context) => const CreateGoal(isNew: true,),
                 ));
               }, child: Text('Goal')),
 

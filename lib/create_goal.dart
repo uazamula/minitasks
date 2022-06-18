@@ -5,31 +5,44 @@ import 'package:minitasks/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateGoal extends StatefulWidget {
-  const CreateGoal({Key? key}) : super(key: key);
+  const CreateGoal({Key? key, required this.isNew, this.index = 0})
+      : super(key: key);
+  final bool isNew;
+  final int index;
 
   @override
   State<CreateGoal> createState() => _CreateGoalState();
 }
 
 class _CreateGoalState extends State<CreateGoal> {
-  bool isButtonActive = true;
+  // bool isButtonActive = true;
   List<String> newGoal = [];
   bool isGoalSaved = false;
   bool isValidGoal = false;
-
-  late TextEditingController controllerGoal;
+  TextEditingController controllerGoal = TextEditingController();
   TextEditingController controllerDescription = TextEditingController();
+
+  List<String>? listOfGoalsString;
+
+  void loadGoals() async {
+    final prefs = await SharedPreferences.getInstance();
+    listOfGoalsString = prefs.getStringList('goals');
+    listOfGoalsString ??= [];
+    if (!widget.isNew) {
+      print('list: $listOfGoalsString');
+      print('index ${widget.index}');
+      print('new: ${widget.isNew}');
+      controllerGoal.text =
+          listOfGoalsString![widget.index * MyHomePage.numOfField];
+      controllerDescription.text =
+          listOfGoalsString![widget.index * MyHomePage.numOfField + 1];
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    controllerGoal = TextEditingController();
-    controllerGoal.addListener(() {
-      final isButtonActive = controllerGoal.text.isNotEmpty;
-      setState(() {
-        this.isButtonActive = isButtonActive;
-      });
-    });
+    loadGoals();
   }
 
   @override
@@ -42,12 +55,12 @@ class _CreateGoalState extends State<CreateGoal> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: ()async {
+      onWillPop: () async {
         return false;
       },
       child: Scaffold(
           appBar: AppBar(
-            title: Text('Create a new Goal'),
+            title: Text(widget.isNew ? 'Create a new Goal' : 'Update the Goal'),
           ),
           body: Center(
             child: SizedBox(
@@ -71,29 +84,35 @@ class _CreateGoalState extends State<CreateGoal> {
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                      onPressed: isButtonActive && !isGoalSaved
+                      onPressed: /*isButtonActive && */ !isGoalSaved
                           ? () async {
-                              final prefs = await SharedPreferences.getInstance();
                               final goal = controllerGoal.text;
                               final description = controllerDescription.text;
 
-                              List<String>? listOfGoalsString = prefs.getStringList('goals');
-                              listOfGoalsString ??= [];
+                              final prefs =
+                                  await SharedPreferences.getInstance();
 
                               setState(() {
                                 //TODO other languages - pl, fr,gr
-                                if (goal.contains(RegExp('[a-zA-Zа-яА-ЯєЄ]'))) {/**/
+                                if (goal.contains(RegExp('[a-zA-Zа-яА-ЯєЄ]'))) {
                                   isValidGoal = true;
                                   newGoal = [goal, description];
-                                  listOfGoalsString!.addAll(newGoal);
-                                  prefs.setStringList('goals', listOfGoalsString);
+                                  if (widget.isNew) {
+                                    listOfGoalsString!.addAll(newGoal);
+                                  } else {
+                                    listOfGoalsString!.replaceRange(
+                                        MyHomePage.numOfField * widget.index,
+                                        MyHomePage.numOfField * (widget.index + 1),
+                                        newGoal);
+                                  }
+                                  prefs.setStringList(
+                                      'goals', listOfGoalsString!);
                                   isGoalSaved = true;
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                           content: Text('Input a valid goal')));
                                 }
-
                               });
                               print(isGoalSaved);
                             }
@@ -103,7 +122,8 @@ class _CreateGoalState extends State<CreateGoal> {
                     height: 20,
                   ),
                   ElevatedButton(
-                      onPressed: isButtonActive && isGoalSaved && isValidGoal
+                      onPressed: /*isButtonActive &&*/ isGoalSaved &&
+                              isValidGoal
                           ? () {
                               Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => MyHomePage(),
@@ -111,13 +131,12 @@ class _CreateGoalState extends State<CreateGoal> {
                               controllerGoal.clear();
                               controllerDescription.clear();
                             }
-                          : isButtonActive
-                              ? () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('Save your goal')));
-                                }
-                              : null,
+                          : /*isButtonActive
+                               ?*/
+                          () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Save your goal')));
+                            } /*: null*/,
                       child: Text('Далі')),
                 ],
               ),
