@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:minitasks/create_goal.dart';
+import 'package:minitasks/create_update_goal.dart';
 import 'package:minitasks/goal.dart';
 import 'package:minitasks/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,7 +49,7 @@ class _ShowMyGoalState extends State<ShowMyGoal> {
             ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CreateGoal(
+                      builder: (context) => CreateUpdateGoal(
                             isNew: false,
                             index: widget.index,
                           )));

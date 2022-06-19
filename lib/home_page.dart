@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:minitasks/create_goals_and_tasks.dart';
 import 'package:minitasks/goal.dart';
 import 'package:minitasks/show_my_goal.dart';
@@ -6,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
-  static const int numOfField = 2;
+  static const int numOfField = 5;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -34,10 +36,17 @@ class _MyHomePageState extends State<MyHomePage> {
     listOfGoalsString ??= [];
     setState(() {
       //TODO replace with json
-      for (int i = 0; i < listOfGoalsString!.length; i = i + MyHomePage.numOfField) {
+      for (int i = 0;
+          i < listOfGoalsString!.length;
+          i = i + MyHomePage.numOfField) {
         listOfGoals!.add(Goal(
           goal: listOfGoalsString![i],
           goalDescription: listOfGoalsString![i + 1],
+          dateTime: DateTime(
+            int.parse(listOfGoalsString![i + 2]),//year
+            int.parse(listOfGoalsString![i + 3]),//month
+            int.parse(listOfGoalsString![i + 4]),//day
+          ),
         ));
       }
     });
@@ -46,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting('uk', null); // obligatorisch fuer Locales!
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Create my goals and tasks'),
@@ -78,7 +89,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ));
               },
-              child: Text(listOfGoals![i].goal),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(listOfGoals![i].goal),
+                  SizedBox(width: 8),
+                  Text(DateFormat.yMMMMd('uk').format(listOfGoals![i].dateTime)),
+                ],
+              ),
             ),
             SizedBox(height: 10),
           ]),

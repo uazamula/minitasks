@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:minitasks/home_page.dart';
 import 'package:minitasks/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-class CreateGoal extends StatefulWidget {
-  const CreateGoal({Key? key, required this.isNew, this.index = 0})
+class CreateUpdateGoal extends StatefulWidget {
+  const CreateUpdateGoal({Key? key, required this.isNew, this.index = 0})
       : super(key: key);
   final bool isNew;
   final int index;
 
   @override
-  State<CreateGoal> createState() => _CreateGoalState();
+  State<CreateUpdateGoal> createState() => _CreateUpdateGoalState();
 }
 
-class _CreateGoalState extends State<CreateGoal> {
+class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
+  DateTime date = DateTime.now();
+
   // bool isButtonActive = true;
   List<String> newGoal = [];
   bool isGoalSaved = false;
@@ -31,11 +35,17 @@ class _CreateGoalState extends State<CreateGoal> {
     if (!widget.isNew) {
       print('list: $listOfGoalsString');
       print('index ${widget.index}');
-      print('new: ${widget.isNew}');
       controllerGoal.text =
           listOfGoalsString![widget.index * MyHomePage.numOfField];
       controllerDescription.text =
           listOfGoalsString![widget.index * MyHomePage.numOfField + 1];
+      setState(() {
+        date = DateTime(
+          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 2]),//year
+          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 3]),//month
+          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 4]),//day
+        );
+      });
     }
   }
 
@@ -54,6 +64,8 @@ class _CreateGoalState extends State<CreateGoal> {
 
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting('uk', null); // obligatorisch fuer Locales!
+
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -67,6 +79,22 @@ class _CreateGoalState extends State<CreateGoal> {
               width: MediaQuery.of(context).size.width * 7 / 8,
               child: Column(
                 children: [
+                  Text('complete till ${DateFormat('y/M/d').format(date)}'),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                      onPressed: () async {
+                        DateTime? newDate = await showDatePicker(
+                            context: context,
+                            initialDate: date,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2050));
+                        if (newDate == null) return; // pressed CANCEL
+                        setState(() {
+                          date = newDate; // pressed OK
+                        });
+                      },
+                      child: Text(DateFormat.yMMMMd('uk').format(date))),
+                  SizedBox(height: 20),
                   TextField(
                     autofocus: true,
                     decoration: InputDecoration(hintText: 'Enter your goal'),
@@ -96,13 +124,22 @@ class _CreateGoalState extends State<CreateGoal> {
                                 //TODO other languages - pl, fr,gr
                                 if (goal.contains(RegExp('[a-zA-Zа-яА-ЯєЄ]'))) {
                                   isValidGoal = true;
-                                  newGoal = [goal, description];
+                                  newGoal = [
+                                    goal,
+                                    description,
+                                    date.year.toString(),
+                                    date.month.toString(),
+                                    date.day.toString(),
+                                  ];
+                                  assert(
+                                      newGoal.length == MyHomePage.numOfField);
                                   if (widget.isNew) {
                                     listOfGoalsString!.addAll(newGoal);
                                   } else {
                                     listOfGoalsString!.replaceRange(
                                         MyHomePage.numOfField * widget.index,
-                                        MyHomePage.numOfField * (widget.index + 1),
+                                        MyHomePage.numOfField *
+                                            (widget.index + 1),
                                         newGoal);
                                   }
                                   prefs.setStringList(
@@ -114,7 +151,6 @@ class _CreateGoalState extends State<CreateGoal> {
                                           content: Text('Input a valid goal')));
                                 }
                               });
-                              print(isGoalSaved);
                             }
                           : null,
                       child: Text('Save changes')),
