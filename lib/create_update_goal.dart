@@ -22,9 +22,11 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
   // bool isButtonActive = true;
   List<String> newGoal = [];
   bool isGoalSaved = false;
+  bool daysFieldIsEmpty=true;
   bool isValidGoal = false;
   TextEditingController controllerGoal = TextEditingController();
   TextEditingController controllerDescription = TextEditingController();
+  TextEditingController controllerDays = TextEditingController();
 
   List<String>? listOfGoalsString;
 
@@ -41,11 +43,18 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
           listOfGoalsString![widget.index * MyHomePage.numOfField + 1];
       setState(() {
         date = DateTime(
-          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 2]),//year
-          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 3]),//month
-          int.parse(listOfGoalsString![widget.index * MyHomePage.numOfField + 4]),//day
+          int.parse(
+              listOfGoalsString![widget.index * MyHomePage.numOfField + 2]),
+          //year
+          int.parse(
+              listOfGoalsString![widget.index * MyHomePage.numOfField + 3]),
+          //month
+          int.parse(listOfGoalsString![
+              widget.index * MyHomePage.numOfField + 4]), //day
         );
       });
+      controllerDays.text =
+          listOfGoalsString![widget.index * MyHomePage.numOfField + 5];
     }
   }
 
@@ -53,12 +62,18 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
   void initState() {
     super.initState();
     loadGoals();
+    controllerDays.addListener(() {
+      setState(() {
+        daysFieldIsEmpty = controllerDays.text.isEmpty;
+      });
+    });
   }
 
   @override
   void dispose() {
     controllerGoal.dispose();
     controllerDescription.dispose();
+    controllerDays.dispose();
     super.dispose();
   }
 
@@ -79,7 +94,13 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
               width: MediaQuery.of(context).size.width * 7 / 8,
               child: Column(
                 children: [
-                  Text('complete till ${DateFormat('y/M/d').format(date)}'),
+                  Text('complete till ${DateFormat('y/M/d').format(
+                    date.add(
+                      Duration(
+                        days: daysFieldIsEmpty?0:int.parse(controllerDays.text),
+                      ),
+                    ),
+                  )}'),
                   SizedBox(height: 20),
                   ElevatedButton(
                       onPressed: () async {
@@ -93,7 +114,18 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
                           date = newDate; // pressed OK
                         });
                       },
-                      child: Text(DateFormat.yMMMMd('uk').format(date))),
+                      child: Text(
+                          'Починати з ${DateFormat.yMMMMd('uk').format(date)}')),
+                  SizedBox(height: 20),
+                  TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration:
+                        InputDecoration(hintText: 'Enter number of days'),
+                    controller: controllerDays,
+                    readOnly: isGoalSaved,
+                  ),
                   SizedBox(height: 20),
                   TextField(
                     autofocus: true,
@@ -116,6 +148,7 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
                           ? () async {
                               final goal = controllerGoal.text;
                               final description = controllerDescription.text;
+                              final days = controllerDays.text;
 
                               final prefs =
                                   await SharedPreferences.getInstance();
@@ -130,6 +163,7 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
                                     date.year.toString(),
                                     date.month.toString(),
                                     date.day.toString(),
+                                    days,
                                   ];
                                   assert(
                                       newGoal.length == MyHomePage.numOfField);
@@ -166,6 +200,7 @@ class _CreateUpdateGoalState extends State<CreateUpdateGoal> {
                               ));
                               controllerGoal.clear();
                               controllerDescription.clear();
+                              controllerDays.clear();
                             }
                           : /*isButtonActive
                                ?*/

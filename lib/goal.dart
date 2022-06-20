@@ -3,11 +3,13 @@ class Goal {
   final String goal;
   final String goalDescription;
   final DateTime dateTime;
+  final int days;
 
-  Goal( {
-    required this.dateTime,
-    this.id=0,
+  Goal({
+    this.id = 0,
     required this.goal,
     this.goalDescription = '',
-  });
+    required this.dateTime,
+    required this.days,
+   });
 }

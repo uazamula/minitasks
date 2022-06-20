@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:minitasks/create_update_goal.dart';
 import 'package:minitasks/goal.dart';
 import 'package:minitasks/home_page.dart';
@@ -18,6 +20,8 @@ class ShowMyGoal extends StatefulWidget {
 class _ShowMyGoalState extends State<ShowMyGoal> {
   @override
   Widget build(BuildContext context) {
+    initializeDateFormatting('uk', null); // obligatorisch fuer Locales!
+
     return Scaffold(
       appBar: AppBar(
         title: Text('ShowMySelectedGoal'),
@@ -28,6 +32,19 @@ class _ShowMyGoalState extends State<ShowMyGoal> {
             Text('goal: ${widget.goal.goal}'),
             SizedBox(height: 20),
             Text('description: ${widget.goal.goalDescription}'),
+            SizedBox(height: 20),
+            Text(
+                'begin at: ${DateFormat.yMMMMd('uk').format(widget.goal.dateTime)}'),
+            SizedBox(height: 20),
+            Text('duration in days: ${widget.goal.days}'),
+            SizedBox(height: 20),
+            Text('final date: ${DateFormat.yMMMMd('uk').format(
+              widget.goal.dateTime.add(
+                Duration(
+                  days: widget.goal.days,
+                ),
+              ),
+            )}'),
             SizedBox(height: 20),
             ElevatedButton(
                 onPressed: () async {

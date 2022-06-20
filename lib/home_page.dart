@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
-  static const int numOfField = 5;
+  static const int numOfField = 6;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -37,16 +37,17 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       //TODO replace with json
       for (int i = 0;
-          i < listOfGoalsString!.length;
-          i = i + MyHomePage.numOfField) {
+      i < listOfGoalsString!.length;
+      i = i + MyHomePage.numOfField) {
         listOfGoals!.add(Goal(
           goal: listOfGoalsString![i],
           goalDescription: listOfGoalsString![i + 1],
           dateTime: DateTime(
-            int.parse(listOfGoalsString![i + 2]),//year
-            int.parse(listOfGoalsString![i + 3]),//month
-            int.parse(listOfGoalsString![i + 4]),//day
+            int.parse(listOfGoalsString![i + 2]), //year
+            int.parse(listOfGoalsString![i + 3]), //month
+            int.parse(listOfGoalsString![i + 4]), //day
           ),
+          days: int.parse(listOfGoalsString![i + 5]), //number of days
         ));
       }
     });
@@ -63,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child:
-            listOfGoals?.length == 0 ? Text("No Goals") : buildGoals(context),
+        listOfGoals?.length == 0 ? Text("No Goals") : buildGoals(context),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createGoal,
@@ -83,10 +84,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ShowMyGoal(
-                    goal: listOfGoals![i],
-                    index: i,
-                  ),
+                  builder: (context) =>
+                      ShowMyGoal(
+                        goal: listOfGoals![i],
+                        index: i,
+                      ),
                 ));
               },
               child: Row(
@@ -94,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   Text(listOfGoals![i].goal),
                   SizedBox(width: 8),
-                  Text(DateFormat.yMMMMd('uk').format(listOfGoals![i].dateTime)),
+                  Text('Complete till ${finalDate(i) }'),
                 ],
               ),
             ),
@@ -102,5 +104,15 @@ class _MyHomePageState extends State<MyHomePage> {
           ]),
       ],
     );
+  }
+
+  String finalDate(int i) {
+    return DateFormat.yMMMMd('uk').format(
+                  listOfGoals![i].dateTime.add(
+                    Duration(
+                      days: listOfGoals![i].days,
+                    ),
+                  ),
+                );
   }
 }
